@@ -1,3 +1,4 @@
+import os
 import pickle
 import streamlit as st
 import requests
@@ -5,14 +6,12 @@ import pandas as pd
 import time
 
 # TMDB API Key
-API_KEY = import os
-
-API_KEY = os.getenv("TMDB_API_KEY")
+API_KEY = os.getenv("TMDB_API_KEY") or "YOUR_PUBLIC_TMDB_API_KEY"
 
 # Function to fetch movie poster
 def fetch_poster(movie_id):
     url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={API_KEY}&language=en-US"
-    for _ in range(3):  # retry 3 times
+    for _ in range(3):
         try:
             response = requests.get(url, timeout=5)
             response.raise_for_status()
@@ -20,8 +19,7 @@ def fetch_poster(movie_id):
             poster_path = data.get("poster_path")
             if poster_path:
                 return "https://image.tmdb.org/t/p/w500" + poster_path
-            # fallback if no poster
-            return "https://via.placeholder.com/500x750?text=No+Image"
+            break
         except requests.exceptions.RequestException as e:
             print(f"Request failed: {e}, retrying...")
             time.sleep(1)
@@ -46,8 +44,10 @@ def recommend(movie):
 st.title("🎬 Movie Recommender System")
 
 # Load pickled data
-movies = pickle.load(open("model/movie_list.pkl", "rb"))
-similarity = pickle.load(open("model/similarity.pkl", "rb"))
+with open("model/movie_list.pkl", "rb") as f:
+    movies = pickle.load(f)
+with open("model/similarity.pkl", "rb") as f:
+    similarity = pickle.load(f)
 
 movie_list = movies['title'].values
 
@@ -61,8 +61,3 @@ if st.button("Show Recommendations"):
         with col:
             st.text(names[i])
             st.image(posters[i])
-
-
-
-
-
