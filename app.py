@@ -5,7 +5,9 @@ import pandas as pd
 import time
 
 # TMDB API Key
-API_KEY = "53665942eec85abad6abcb0407f79c90"
+API_KEY = import os
+
+API_KEY = os.getenv("TMDB_API_KEY")
 
 # Function to fetch movie poster
 def fetch_poster(movie_id):
